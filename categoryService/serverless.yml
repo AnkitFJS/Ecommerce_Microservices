@@ -1,0 +1,47 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: reduction
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: categoryService
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: ap-south-1
+  environment:
+    DYNAMO_TABLE: Categories
+    BUCKET_NAME: category-images-nidhi-8417973113-dev
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource: arn:aws:dynamodb:ap-south-1:511551295071:table/Categories
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+      Resource:
+        - arn:aws:s3:::category-images-nidhi-8417973113-dev/*
+
+resources:
+  Resources:
+    CategoryImagesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: category-images-nidhi-8417973113-dev
+    CategoryTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Categories
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: categoryName
+            AttributeType: S
+        KeySchema:
+          - AttributeName: categoryName
+            KeyType: HASH
+functions:
+  getUploadUrl:
+    handler: handlers/getUploadUrl.getUploadUrl
+    events:
+      - httpApi:
+          path: /upload-url
+          method: post
