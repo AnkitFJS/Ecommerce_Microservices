@@ -15,6 +15,8 @@ provider:
       Action:
         - dynamodb:PutItem
         - dynamodb:UpdateItem # added permission to update existing items
+        - dynamodb:Scan
+        - dynamodb:DeleteItem
       Resource: arn:aws:dynamodb:ap-south-1:511551295071:table/Categories
     - Effect: Allow
       Action:
@@ -53,3 +55,11 @@ functions:
           bucket: category-images-nidhi-8417973113-dev
           event: s3:ObjectCreated:Put
           existing: true
+  cleanupCategories:
+    handler: handlers/cleanupCategories.cleanupCategories
+    events:
+      - schedule:
+          rate: rate(2 minutes)
+          input:
+            bucketName: category-images-nidhi-8417973113-dev
+            tableName: Categories
