@@ -1,0 +1,68 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: reduction
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: BannerService
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: ap-south-1
+  environment:
+    BUCKET_NAME: banner-images-nidhi8417973113-dev
+    DYNAMO_TABLE: Banners
+
+  #i am roles
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+      Resource: arn:aws:s3:::banner-images-nidhi8417973113-dev/*
+    # iam role for dynamodb
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+      Resource: arn:aws:dynamodb:ap-south-1:511551295071:table/Banners
+
+# STEP 1 - create bucket and deploy
+resources:
+  Resources:
+    BannerImagesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: banner-images-nidhi8417973113-dev
+        CorsConfiguration:
+          CorsRules:
+            - AllowedMethods:
+                - PUT
+              AllowedOrigins:
+                - "*"
+              AllowedHeaders:
+                - "*"
+    #dynamodb table configurations
+    BannersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Banners
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: fileName
+            AttributeType: S
+        KeySchema:
+          - AttributeName: fileName
+            KeyType: HASH
+
+functions:
+  getUploadUrl:
+    handler: handlers/uploadBanner.getUploadUrl
+    events:
+      - httpApi:
+          path: /upload-banner
+          method: post
+  
+  confirmUpload:
+     handler: handlers/confirmUpload.confirmUpload
+     events: 
+      - s3:
+          bucket: banner-images-nidhi8417973113-dev
+          event: s3:ObjectCreated:Put
+          existing: true

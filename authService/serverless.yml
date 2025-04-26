@@ -1,0 +1,60 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: reduction
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: authService
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: ap-south-1
+  environment:
+    CLIENT_ID: ${ssm:/CLIENT_ID}
+  iamRoleStatements: # grant IAM permsissions to the lambda functions
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - arn:aws:dynamodb:ap-south-1:511551295071:table/Users
+
+resources:
+  Resources:
+    UsersTable:
+      Type: AWS::DynamoDB::Table  # defines a dynamodb table resource
+      Properties:
+        TableName: Users  # name of the table
+        BillingMode: PAY_PER_REQUEST  # automatically scales read/write capacity base on usage
+        AttributeDefinitions:
+          - AttributeName: userId  # partition key
+            AttributeType: S # type of the partition key i.e. string
+        KeySchema:
+          - AttributeName: userId  # partition key
+            KeyType: HASH  # type of the partition key i.e. string
+
+functions:
+  signUp:
+    handler: handlers/signUp.signUp
+    events:
+      - httpApi:
+          path: /signUp
+          method: post
+  confirmSignUp:
+    handler: handlers/confirmSignUp.confirmSignUp
+    events:
+      - httpApi:
+          path: /confirmSignUp
+          method: post
+  signIn:
+    handler: handlers/signIn.signIn
+    events:
+      - httpApi:
+          path: /logIn
+          method: post
+  signOut:
+    handler: handlers/signOut.signOut
+    events:
+      - httpApi:
+          path: /logout
+          method: post
