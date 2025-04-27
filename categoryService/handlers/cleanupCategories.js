@@ -1,5 +1,5 @@
 // import required aws sdk modules
-import { DynamoDBClient, ScanCommand, DeleteItemCommand } from '@aws-sdk/client-dynamodb';
+const { DynamoDBClient, ScanCommand, DeleteItemCommand } = require('@aws-sdk/client-dynamodb');
 
 // initailize the DynamoDB client
 
