@@ -41,6 +41,19 @@ resources:
         KeySchema:
           - AttributeName: fileName
             KeyType: HASH
+    # create SNS topic to send notifications when cateogory without imageUrl are deleted
+    CategoryCleanupTopic:
+      Type: AWS::SNS::Topic #type of resource
+      Properties:
+        TopicName: CategoryCleanupTopic #name of the topic
+    # create SNS subscription to send notifications to the topic
+    CategoryCleanupSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn: arn:aws:sns:ap-south-1:511551295071:CategoryCleanupTopic
+        Protocol: email
+        Endpoint: crickethilightsadda@gmail.com  
+
 functions:
   getUploadUrl:
     handler: handlers/getUploadUrl.getUploadUrl
