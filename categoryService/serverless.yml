@@ -10,7 +10,13 @@ provider:
   environment:
     DYNAMO_TABLE: Categories
     BUCKET_NAME: category-images-nidhi-8417973113-dev
+    SNS_TOPIC_ARN: arn:aws:sns:ap-south-1:511551295071:CategoryCleanupTopic
   iamRoleStatements:
+    # i am roles for sns notification
+    - Effect: Allow
+      Action:
+        - sns:Publish
+      Resource: arn:aws:sns:ap-south-1:511551295071:CategoryCleanupTopic
     - Effect: Allow
       Action:
         - dynamodb:PutItem
