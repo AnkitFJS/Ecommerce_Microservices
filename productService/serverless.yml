@@ -7,8 +7,13 @@ provider:
   name: aws
   runtime: nodejs22.x
   region: ap-south-1
-  
-
+  httpApi:
+    authorizers:
+      myCognitoAuth: # custom name for cognito authorization ( used in routes )
+        identitySource: $request.header.Authorization # extract jwt token from authorization header ( used for validation )
+        issuerUrl: https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_Xt0F5wn2M # url of cognito user pool( needed to verify the token )
+        audience: 
+          - 70qfnhobtjp6o4mn70gnkpas8t # cognito app client ID ( ensures tokens comes from right app )
 resources:
   Resources:
    # product table dynamodb
@@ -32,6 +37,16 @@ functions:
   hello:
     handler: handler.hello
     events:
+      # - http:
+      #     path: /
+      #     method: get
+      #     authorizer:
+      #       type: COGNITO_USER_POOLS
+      #       arn: arn:aws:cognito-idp:ap-south-1:511551295071:userpool/ap-south-1_Xt0F5wn2M
+      #       identitySource: method.request.header.Authorization
       - httpApi:
           path: /
           method: get
+          authorizer:
+            name: myCognitoAuth # name of the cognito authorizer defined in provider section
+
