@@ -23,7 +23,11 @@ resources:
         KeySchema:
           - AttributeName: id
             KeyType: HASH
-
+    # product images bucket congiguration
+    ProductImagesBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: product-images-nidhi-8417973113-dev
 functions:
   hello:
     handler: handler.hello
